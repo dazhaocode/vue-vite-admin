@@ -1,14 +1,14 @@
 <template>
-  <transition name="fade">
+  <transition
+    name="fade"
+    @before-leave="onClose"
+    @after-leave="$emit('destroy')"
+  >
     <div
       class="message"
-      :class="{
-        success: type == 'success',
-        info: type == 'info',
-        warn: type == 'warn',
-        error: type == 'error',
-      }"
+      :class="[type ? `message-${type}` : '']"
       v-if="visible"
+      :style="customStyle"
     >
       {{ text }}
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "@vue/runtime-core";
+import { onMounted, ref, computed } from "@vue/runtime-core";
 export default {
   name: "Message",
   props: {
@@ -32,22 +32,40 @@ export default {
       type: Number,
       default: 2000,
     },
+    id: { type: String, default: "" },
     type: {
       type: String,
     },
+    onClose: {
+      type: Function,
+      required: true,
+    },
+    offset: { type: Number, default: 20 },
   },
+  emits: ["destroy"],
   setup(props) {
     let visible = ref(props.show);
+    const customStyle = computed(() => {
+      return {
+        top: `${props.offset}px`,
+      };
+    });
+    const close = () => {
+      visible.value = false;
+    };
     onMounted: {
-      setTimeout(() => (visible.value = false), props.duration);
+      //setTimeout(() => close(), props.duration);
     }
-    return { visible };
+    return { visible, customStyle };
   },
 };
 </script>
 
 <style>
 .message {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
   width: 300px;
   height: 55px;
   display: flex;
@@ -60,16 +78,16 @@ export default {
   text-align: center;
   font-size: 0.32rem;
 }
-.success {
+.message-success {
   background: #4caf50;
 }
-.info {
+.message-info {
   background: #00bcd4;
 }
-.warn {
+.message-warn {
   background: #ff9800;
 }
-.error {
+.message-error {
   background: #f44336;
 }
 .fade-enter-active,

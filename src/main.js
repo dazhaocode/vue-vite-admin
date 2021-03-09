@@ -8,4 +8,4 @@ import "./assets/styles/index.scss"
 const app = createApp(App).use(router).use(store).use(message).mount('#app');
 
 console.log(app);
-app.$message({ show: true, text: "test" })
+//app.$message({ show: true, text: "test" })
